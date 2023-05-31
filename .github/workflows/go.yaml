@@ -104,6 +104,7 @@ jobs:
           key: ${{secrets.SSH_KEY}}
           port: 22
           script: |
+            echo "HTTP_PORT=8654" > ${{env.DEPLOY_PATH}}/.env
             docker login -u  ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ${{ env.REGISTRY }}
             docker compose -f ${{env.DEPLOY_PATH}}/compose.yml pull
             docker compose -f ${{env.DEPLOY_PATH}}/compose.yml down
