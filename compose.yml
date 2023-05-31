@@ -4,7 +4,7 @@ services:
     image: ghcr.io/reloadlife/go.mamad.dev:master
     environment:
       - CERT=/cert.pem
-      - KEY=/key.pem
+      - CERT_KEY=/key.pem
     ports:
       - "${HTTP_PORT:-8080}:80"
     volumes:
