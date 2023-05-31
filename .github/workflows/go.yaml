@@ -61,3 +61,50 @@ jobs:
         env:
           COSIGN_EXPERIMENTAL: "true"
         run: echo "${{ steps.meta.outputs.tags }}" | xargs -I {} cosign sign {}@${{ steps.build-and-push.outputs.digest }}
+
+  deploy:
+    environment:
+      name: Deploy on Prod
+      url: https://go.mamad.dev
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+      id-token: write
+    steps:
+      - uses: actions/checkout@master
+      - uses: actions/setup-node@master
+      - name: Checkout repository
+        uses: actions/checkout@v3
+
+      - name: create deploy directory
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: root
+          key: ${{secrets.SSH_KEY}}
+          port: 22
+          script: |
+            mkdir -p ${{secrets.SSH_PATH}}
+
+      - name: Copy compose.yml on server
+        uses: garygrossgarten/github-action-scp@release
+        with:
+          privateKey: ${{secrets.SSH_KEY}}
+          host: ${{ secrets.SSH_HOST }}
+          username: root
+          local: compose.yml
+          remote: ${{env.DEPLOY_PATH}}/compose.yml
+
+      - name: deploy to production
+        uses: appleboy/ssh-action@v0.1.10
+        with:
+          host: ${{ secrets.SSH_HOST }}
+          username: root
+          key: ${{secrets.SSH_KEY}}
+          port: 22
+          script: |
+            docker login -u  ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ${{ env.REGISTRY }}
+            docker compose -f ${{env.DEPLOY_PATH}}/compose.yml pull
+            docker compose -f ${{env.DEPLOY_PATH}}/compose.yml down
+            docker compose -f ${{env.DEPLOY_PATH}}/compose.yml up -d --remove-orphans
