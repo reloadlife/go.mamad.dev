@@ -63,6 +63,8 @@ jobs:
         run: echo "${{ steps.meta.outputs.tags }}" | xargs -I {} cosign sign {}@${{ steps.build-and-push.outputs.digest }}
 
   deploy:
+    needs:
+      - build
     environment:
       name: Deploy on Prod
       url: https://go.mamad.dev
@@ -104,6 +106,8 @@ jobs:
           key: ${{secrets.SSH_KEY}}
           port: 22
           script: |
+            echo "${{secrets.CERT}}" > ${{secrets.SSH_PATH}}/cert.pem
+            echo "${{secrets.KEY}}" > ${{secrets.SSH_PATH}}/key.pem
             echo "HTTP_PORT=8654" > ${{secrets.SSH_PATH}}/.env
             docker login -u  ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ${{ env.REGISTRY }}
             docker compose -f ${{secrets.SSH_PATH}}/compose.yml pull
