@@ -94,7 +94,7 @@ jobs:
           host: ${{ secrets.SSH_HOST }}
           username: root
           local: compose.yml
-          remote: ${{env.DEPLOY_PATH}}/compose.yml
+          remote: ${{secrets.SSH_PATH}}/compose.yml
 
       - name: deploy to production
         uses: appleboy/ssh-action@v0.1.10
@@ -104,8 +104,8 @@ jobs:
           key: ${{secrets.SSH_KEY}}
           port: 22
           script: |
-            echo "HTTP_PORT=8654" > ${{env.DEPLOY_PATH}}/.env
+            echo "HTTP_PORT=8654" > ${{secrets.SSH_PATH}}/.env
             docker login -u  ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ${{ env.REGISTRY }}
-            docker compose -f ${{env.DEPLOY_PATH}}/compose.yml pull
-            docker compose -f ${{env.DEPLOY_PATH}}/compose.yml down
-            docker compose -f ${{env.DEPLOY_PATH}}/compose.yml up -d --remove-orphans
+            docker compose -f ${{secrets.SSH_PATH}}/compose.yml pull
+            docker compose -f ${{secrets.SSH_PATH}}/compose.yml down
+            docker compose -f ${{secrets.SSH_PATH}}/compose.yml up -d --remove-orphans
