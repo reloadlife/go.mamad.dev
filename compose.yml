@@ -6,7 +6,12 @@ services:
       - CERT=/cert.pem
       - CERT_KEY=/key.pem
     ports:
-      - "${HTTP_PORT:-8080}:80"
+      - "${HTTP_PORT:-8443}:80"
     volumes:
       - ./cert.pem:/cert.pem
       - ./key.pem:/key.pem
+    healthcheck:
+      test: [ "CMD-SHELL", "curl --fail https://localhost:80/ping || exit 1" ]
+      interval: 30s
+      timeout: 10s
+      retries: 3

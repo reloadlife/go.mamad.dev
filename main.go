@@ -2,13 +2,15 @@ package main
 
 import (
 	"bytes"
+	`errors`
 	"fmt"
-	log "github.com/sirupsen/logrus"
 	"html/template"
 	"net/http"
 	"net/url"
 	"os"
 	"path"
+	
+	log "github.com/sirupsen/logrus"
 )
 
 var tpl = template.Must(template.New("html").Parse(`<!DOCTYPE html>
@@ -25,7 +27,7 @@ func main() {
 	if addr == "" {
 		addr = ":80"
 	}
-
+	
 	vcs := os.Getenv("VCS_TYPE")
 	if vcs == "" {
 		vcs = "git"
@@ -35,20 +37,20 @@ func main() {
 		log.Warnf("VCS_URL env not specified (eg: https://github.com/username), using the default: https://github.com/reloadlife")
 		vcsURL = "https://github.com/reloadlife"
 	}
-
+	
 	u, err := url.Parse(vcsURL)
 	if err != nil {
 		log.Fatalf("invalid vcs url: %v", err)
 	}
-
+	
 	if u.Scheme != "https" {
 		log.Fatalf("vcs url scheme must be https")
 	}
-
+	
 	muxHttpHandler := http.NewServeMux()
 	muxHttpHandler.Handle("/ping", health())
 	muxHttpHandler.Handle("/", redirectToPkg(vcs, u))
-
+	
 	log.Printf("Listening on: %s", addr)
 	if cert, key := os.Getenv("CERT"),
 		os.Getenv("CERT_KEY"); cert != "" && key != "" {
@@ -56,10 +58,10 @@ func main() {
 	} else {
 		err = http.ListenAndServe(addr, muxHttpHandler)
 	}
-	if err != http.ErrServerClosed {
+	if !errors.Is(err, http.ErrServerClosed) {
 		log.Fatalf("listen error: %+v", err)
 	}
-
+	
 	log.Infof("server shutdown successfully")
 }
 
@@ -76,18 +78,18 @@ func redirectToPkg(vcs string, vcsURL *url.URL) http.HandlerFunc {
 			w.WriteHeader(http.StatusMethodNotAllowed)
 			return
 		}
-
+		
 		u, err := url.Parse(fmt.Sprintf("https://%s%s", vcsURL.Host, path.Join(vcsURL.Path, r.URL.Path)))
 		if err != nil {
 			http.Error(w, fmt.Sprintf("error building vcs url: %v", err), http.StatusInternalServerError)
 			return
 		}
-
+		
 		if r.URL.Query().Get("go-get") != "1" || len(r.URL.Path) < 2 {
 			http.Redirect(w, r, u.String(), http.StatusTemporaryRedirect)
 			return
 		}
-
+		
 		data := struct {
 			Host string
 			VCS  string
@@ -97,13 +99,13 @@ func redirectToPkg(vcs string, vcsURL *url.URL) http.HandlerFunc {
 			vcs,
 			u.String(),
 		}
-
+		
 		var buf bytes.Buffer
 		if err := tpl.Execute(&buf, &data); err != nil {
 			http.Error(w, err.Error(), http.StatusInternalServerError)
 			return
 		}
-
+		
 		w.Header().Set("cache-Control", "no-store")
 		_, _ = w.Write(buf.Bytes())
 	}
