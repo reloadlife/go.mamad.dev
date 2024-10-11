@@ -1,5 +1,5 @@
 name = "go-import-redirector"
-main = "dist/worker.js"
+main = "worker.js"
 compatibility_date = "2023-05-18"
 
 [vars]

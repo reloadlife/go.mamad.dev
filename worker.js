@@ -1,8 +1,3 @@
-interface Env {
-  VCS_TYPE: string;
-  VCS_URL: string;
-}
-
 const template = `<!DOCTYPE html>
 <html>
 <head>
@@ -12,11 +7,7 @@ const template = `<!DOCTYPE html>
 </html>`;
 
 export default {
-  async fetch(
-    request: Request,
-    env: Env,
-    ctx: ExecutionContext
-  ): Promise<Response> {
+  async fetch(request, env, ctx) {
     const url = new URL(request.url);
     const vcs = env.VCS_TYPE || "git";
     const vcsURL = new URL(env.VCS_URL || "https://github.com/reloadlife");

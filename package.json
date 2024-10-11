@@ -1,19 +1,14 @@
-
 {
   "name": "go-import-redirector",
   "version": "1.0.0",
   "description": "Go import redirector for Cloudflare Workers",
-  "main": "dist/index.js",
+  "main": "worker.js",
   "scripts": {
-    "build": "webpack",
-    "deploy": "wrangler publish",
+    "deploy": "wrangler deploy",
     "dev": "wrangler dev"
   },
+  "dependencies": {},
   "devDependencies": {
-    "@cloudflare/workers-types": "^4.0.0",
-    "ts-loader": "^9.4.3",
-    "typescript": "^5.0.4",
-    "webpack": "^5.85.0",
-    "webpack-cli": "^5.1.1"
+    "wrangler": "^3.0.0"
   }
 }
