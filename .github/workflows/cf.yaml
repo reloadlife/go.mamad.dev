@@ -24,4 +24,4 @@ jobs:
         with:
           apiToken: ${{ secrets.CF_API_TOKEN }}
           accountId: ${{ secrets.CF_ACCOUNT_ID }}
-          command: deploy dist/worker.js
+          command: deploy dist/worker.js --name go-import-redirector
