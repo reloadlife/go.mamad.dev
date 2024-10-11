@@ -1,5 +1,3 @@
-import { URLPattern } from "@cloudflare/urlpattern-polyfill";
-
 interface Env {
   VCS_TYPE: string;
   VCS_URL: string;

@@ -9,9 +9,6 @@
     "deploy": "wrangler publish",
     "dev": "wrangler dev"
   },
-  "dependencies": {
-    "@cloudflare/urlpattern-polyfill": "^1.0.0"
-  },
   "devDependencies": {
     "@cloudflare/workers-types": "^4.0.0",
     "ts-loader": "^9.4.3",
