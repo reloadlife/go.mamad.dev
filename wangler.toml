@@ -1,0 +1,8 @@
+# wrangler.toml
+name = "go-import-redirector"
+main = "src/index.ts"
+compatibility_date = "2023-05-18"
+
+[vars]
+VCS_TYPE = "git"
+VCS_URL = "https://github.com/reloadlife"

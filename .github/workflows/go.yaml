@@ -51,54 +51,54 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           
-  deploy:
-    needs:
-      - build
-    environment:
-      name: Deploy on Prod
-      url: https://go.mamad.dev
-    runs-on: ubuntu-latest
-    permissions:
-      contents: write
-      packages: write
-      id-token: write
-    steps:
-      - uses: actions/checkout@master
-      - uses: actions/setup-node@master
-      - name: Checkout repository
-        uses: actions/checkout@v3
+  # deploy:
+  #   needs:
+  #     - build
+  #   environment:
+  #     name: Deploy on Prod
+  #     url: https://go.mamad.dev
+  #   runs-on: ubuntu-latest
+  #   permissions:
+  #     contents: write
+  #     packages: write
+  #     id-token: write
+  #   steps:
+  #     - uses: actions/checkout@master
+  #     - uses: actions/setup-node@master
+  #     - name: Checkout repository
+  #       uses: actions/checkout@v3
 
-      - name: create deploy directory
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: root
-          key: ${{secrets.SSH_KEY}}
-          port: 22
-          script: |
-            mkdir -p ${{secrets.SSH_PATH}}
+  #     - name: create deploy directory
+  #       uses: appleboy/ssh-action@v0.1.10
+  #       with:
+  #         host: ${{ secrets.SSH_HOST }}
+  #         username: root
+  #         key: ${{secrets.SSH_KEY}}
+  #         port: 22
+  #         script: |
+  #           mkdir -p ${{secrets.SSH_PATH}}
 
-      - name: Copy compose.yml on server
-        uses: garygrossgarten/github-action-scp@release
-        with:
-          privateKey: ${{secrets.SSH_KEY}}
-          host: ${{ secrets.SSH_HOST }}
-          username: root
-          local: compose.yml
-          remote: ${{secrets.SSH_PATH}}/compose.yml
+  #     - name: Copy compose.yml on server
+  #       uses: garygrossgarten/github-action-scp@release
+  #       with:
+  #         privateKey: ${{secrets.SSH_KEY}}
+  #         host: ${{ secrets.SSH_HOST }}
+  #         username: root
+  #         local: compose.yml
+  #         remote: ${{secrets.SSH_PATH}}/compose.yml
 
-      - name: deploy to production
-        uses: appleboy/ssh-action@v0.1.10
-        with:
-          host: ${{ secrets.SSH_HOST }}
-          username: root
-          key: ${{secrets.SSH_KEY}}
-          port: 22
-          script: |
-            echo "${{secrets.CERT}}" > ${{secrets.SSH_PATH}}/cert.pem
-            echo "${{secrets.KEY}}" > ${{secrets.SSH_PATH}}/key.pem
-            echo "HTTP_PORT=8654" > ${{secrets.SSH_PATH}}/.env
-            docker login -u  ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ${{ env.REGISTRY }}
-            docker compose -f ${{secrets.SSH_PATH}}/compose.yml pull
-            docker compose -f ${{secrets.SSH_PATH}}/compose.yml down
-            docker compose -f ${{secrets.SSH_PATH}}/compose.yml up -d --remove-orphans
+      # - name: deploy to production
+      #   uses: appleboy/ssh-action@v0.1.10
+      #   with:
+      #     host: ${{ secrets.SSH_HOST }}
+      #     username: root
+      #     key: ${{secrets.SSH_KEY}}
+      #     port: 22
+      #     script: |
+      #       echo "${{secrets.CERT}}" > ${{secrets.SSH_PATH}}/cert.pem
+      #       echo "${{secrets.KEY}}" > ${{secrets.SSH_PATH}}/key.pem
+      #       echo "HTTP_PORT=8654" > ${{secrets.SSH_PATH}}/.env
+      #       docker login -u  ${{ github.actor }} -p ${{ secrets.GITHUB_TOKEN }} ${{ env.REGISTRY }}
+      #       docker compose -f ${{secrets.SSH_PATH}}/compose.yml pull
+      #       docker compose -f ${{secrets.SSH_PATH}}/compose.yml down
+      #       docker compose -f ${{secrets.SSH_PATH}}/compose.yml up -d --remove-orphans
